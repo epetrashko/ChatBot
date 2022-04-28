@@ -58,11 +58,10 @@ def main():
                           port=int(PORT),
                           url_path=TOKEN,
                           webhook_url='https://brawler-chat-bot.herokuapp.com/' + TOKEN)
-    updater.start_polling()
+    # updater.start_polling()
 
     updater.idle()
 
 
 if __name__ == '__main__':
-    bot = telegram.Bot(token=TOKEN)
     main()
