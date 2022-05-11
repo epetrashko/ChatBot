@@ -2,8 +2,13 @@ import re
 import random
 import json
 import nltk
+import tensorflow.python.keras.optimizers
 from nltk.stem import WordNetLemmatizer
 import numpy as np
+
+from tensorflow.python.keras import Sequential
+from tensorflow.python.keras.layers import Dense, Activation, Dropout
+from tensorflow.python.keras.optimizers.gradient_descent_v2 import SGD
 
 ignore_words = ['?', '!']
 
@@ -45,6 +50,63 @@ class ChatBot:
 
         # sort classes
         self.classes = sorted(list(set(self.classes)))
+
+    def create_training_data(self):
+        # create our training data
+        training = []
+
+        # create an empty array for our output
+        output_empty = [0] * len(self.classes)
+
+        # training set, bag of words for each sentence
+        for doc in self.documents:
+            # initialize our bag of words
+            bag = []
+            # list of tokenized words for the pattern
+            pattern_words = doc[0]
+
+            # lemmatize each word - create base word, in attempt to represent related words
+            pattern_words = [self.lemmatizer.lemmatize(word.lower()) for word in pattern_words]
+
+            # create our bag of words array with 1, if word match found in current pattern
+            for w in self.words:
+                bag.append(1) if w in pattern_words else bag.append(0)
+            # output is a '0' for each tag and '1' for current tag (for each pattern)
+            output_row = list(output_empty)
+            output_row[self.classes.index(doc[1])] = 1
+            training.append([bag, output_row])
+
+        # shuffle features and converting it into numpy arrays
+        random.shuffle(training)
+        training = np.array(training)
+
+        # create train and test lists
+        train_x = list(training[:, 0])
+        train_y = list(training[:, 1])
+
+        print("Training data created")
+        self.create_model(train_x, train_y)
+
+    def create_model(self, train_x, train_y):
+        # Create NN model to predict the responses
+        self.model = Sequential()
+        self.model.add(Dense(128, input_shape=(len(train_x[0]),), activation='relu'))
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(64, activation='relu'))
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(len(train_y[0]), activation='softmax'))
+
+        # Compile model. Stochastic gradient descent with Nesterov accelerated gradient gives good results for this
+        # model
+        sgd = SGD(learning_rate=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        self.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+
+        # fitting and saving the model
+        hist = self.model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=1)
+        # self.model.save('chatbot.h5', hist)  # we will pickle this model to use in the future
+        print("\n")
+        print("*" * 50)
+        print("\nModel Created Successfully!")
 
     def bow(self, sentence):
         bag = [0] * len(self.words)
