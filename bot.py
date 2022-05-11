@@ -1,28 +1,56 @@
+import re
 import random
+import json
 import nltk
 from nltk.stem import WordNetLemmatizer
 import numpy as np
 
-lemmatizer = WordNetLemmatizer()
-
-
-def clean_up_sentence(sentence):
-    sentence_words = nltk.word_tokenize(sentence)
-    sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
-    return sentence_words
-
+ignore_words = ['?', '!']
 
 class ChatBot:
+
     def __init__(self):
         self.model = None
         self.intents_json = None
-        self.words = None
-        self.classes = None
+        self.words = []
+        self.classes = []
+        self.documents = []
         self.list_of_intents = None
+        self.lemmatizer = WordNetLemmatizer()
+        data_file = open("intents.json").read()
+        self.intents = json.loads(data_file)
+
+
+    def clean_up_sentence(self, sentence):
+        sentence_words = nltk.word_tokenize(sentence)
+        sentence_words = [self.lemmatizer.lemmatize(word.lower()) for word in sentence_words]
+        return sentence_words
+
+    def data_preprocessing(self):
+        for intent in self.intents['intents']:
+            for pattern in intent['patterns']:
+
+                # tokenize each word
+                w = nltk.word_tokenize(pattern)
+                self.words.extend(w)
+
+                # add documents in the corpus
+                self.documents.append((w, intent['tag']))
+
+                # add to our classes list
+                if intent['tag'] not in self.classes:
+                    self.classes.append(intent['tag'])
+
+        # lemmatize, lower each word and remove duplicates
+        self.words = [self.lemmatizer.lemmatize(w.lower()) for w in self.words if w not in ignore_words]
+        self.words = sorted(list(set(self.words)))
+
+        # sort classes
+        self.classes = sorted(list(set(self.classes)))
 
     def bow(self, sentence):
         bag = [0] * len(self.words)
-        for s in clean_up_sentence(sentence):
+        for s in self.clean_up_sentence(sentence):
             for i, w in enumerate(self.words):
                 if w == s:
                     bag[i] = 1
