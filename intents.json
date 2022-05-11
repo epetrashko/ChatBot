@@ -1,0 +1,45 @@
+{
+  "intents": [
+    {
+      "tag": "greetings",
+      "patterns": [
+        "hi",
+        "hello",
+        "whats up",
+        "hey",
+        "yo",
+        "listen",
+        "please help me",
+        "hey yo"
+      ],
+      "responses": [
+        "Hello! How can I help you?"
+      ],
+      "context_set": ""
+    },
+    {
+      "tag": "Exit",
+      "patterns": [
+        "thank you",
+        "thanks",
+        "see you",
+        "later",
+        "see you later",
+        "goodbye",
+        "i am leaving",
+        "have a Good day",
+        "you helped me",
+        "thanks a lot",
+        "thanks a ton",
+        "you are the best",
+        "great help",
+        "too good",
+        "you are a good learning buddy"
+      ],
+      "responses": [
+        "I hope I was able to assist you, Good Bye"
+      ],
+      "context_set": ""
+    }
+  ]
+}
