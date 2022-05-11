@@ -779,6 +779,118 @@
         "That's me. I chat, therefore I am.",
         "Indeed I am. I'll be here whenever you need me."
       ]
+    },
+    {
+      "tag": "clever",
+      "patterns": [
+        "brilliant",
+        "clever",
+        "how brainy you are",
+        "how brilliant you are",
+        "how clever you are",
+        "how smart you are",
+        "smart",
+        "why are you so smart",
+        "you are a genius",
+        "you are clever",
+        "you are intelligent",
+        "you are qualified",
+        "you are really smart",
+        "you are so brainy",
+        "you are so clever",
+        "you are so intelligent",
+        "you are so smart",
+        "you are too smart",
+        "you are very clever",
+        "you are very intelligent",
+        "you are very smart",
+        "you have a lot of knowledge",
+        "you know a lot",
+        "you know a lot of things",
+        "you know so much",
+        "you're a genius",
+        "you're a smart cookie",
+        "you're clever",
+        "you're intelligent",
+        "you're pretty smart",
+        "you're qualified",
+        "you're really brainy",
+        "you're really smart",
+        "you're very smart"
+      ],
+      "responses": [
+        "Thank you. I try my best.",
+        "You're pretty smart yourself."
+      ]
+    },
+    {
+      "tag": "laugh",
+      "patterns": [
+        "LMAO",
+        "ah",
+        "ah ah ah",
+        "ahah",
+        "ahah lol",
+        "ahaha",
+        "ahahah",
+        "ahahaha",
+        "funny",
+        "ha",
+        "ha ha",
+        "ha ha ha",
+        "ha ha ha ha",
+        "hah",
+        "haha",
+        "haha haha haha",
+        "haha that's",
+        "haha very",
+        "hahaha",
+        "hahaha",
+        "hahaha very",
+        "he",
+        "hehe",
+        "hehehe",
+        "huh",
+        "laughing out",
+        "lmao",
+        "lol",
+        "loud",
+        "that's ",
+        "xd"
+      ],
+      "responses": [
+        "Yeah, I crack myself up too.",
+        "Laughter is good for you. Keep it up.",
+        "You have a great laugh."
+      ]
+    },
+    {
+      "tag": "wow",
+      "patterns": [
+        "wow",
+        "wow wow",
+        "wow wow wow",
+        "wooow",
+        "woah"
+      ],
+      "responses": [
+        "Wow indeed!"
+      ]
+    },
+    {
+      "tag": "enjoyment",
+      "patterns": [
+        "I enjoy",
+        "I enjoy your company",
+        "I enjoy your presence",
+        "I enjoy you",
+        "I enjoy being with you"
+      ],
+      "responses": [
+        "Likewise!",
+        "Feelings are mutual!",
+        "I enjoy you as well."
+      ]
     }
   ]
 }
