@@ -7,19 +7,17 @@ import numpy as np
 
 ignore_words = ['?', '!']
 
+
 class ChatBot:
 
     def __init__(self):
         self.model = None
-        self.intents_json = None
         self.words = []
         self.classes = []
         self.documents = []
-        self.list_of_intents = None
         self.lemmatizer = WordNetLemmatizer()
         data_file = open("intents.json").read()
         self.intents = json.loads(data_file)
-
 
     def clean_up_sentence(self, sentence):
         sentence_words = nltk.word_tokenize(sentence)
@@ -68,10 +66,9 @@ class ChatBot:
         return return_list
 
     def get_response(self, text):
-        # list_of_intents = self.intents_json['intents']
         tag = self.predict_class(text, self.model)[0]['intent']
         result = None
-        for i in self.list_of_intents:
+        for i in self.intents['intents']:
             if i['tag'] == tag:
                 result = random.choice(i['responses'])
                 break
