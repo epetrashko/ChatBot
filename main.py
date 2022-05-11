@@ -1,8 +1,7 @@
 import logging
 import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from nltk.chat.util import Chat, reflections
-from pairs import pairs
+from bot import ChatBot
 
 PORT = int(os.environ.get('PORT', 443))
 TOKEN = "5324171051:AAGdPccBNvGEtPDTPOnaBRtiMM5eiNeK2vg"
@@ -12,7 +11,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-chat = Chat(pairs, reflections)
+chat_bot = ChatBot()
 
 
 def start(update, _):
@@ -20,7 +19,7 @@ def start(update, _):
 
 
 def echo(update, _):
-    update.message.reply_text(chat.respond(update.message.text))
+    update.message.reply_text(chat_bot.get_response(update.message.text))
 
 
 def error(update, context):

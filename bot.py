@@ -1,14 +1,16 @@
-import re
 import random
 import json
 import nltk
-import tensorflow.python.keras.optimizers
 from nltk.stem import WordNetLemmatizer
 import numpy as np
 
 from tensorflow.python.keras import Sequential
 from tensorflow.python.keras.layers import Dense, Activation, Dropout
-from tensorflow.python.keras.optimizers.gradient_descent_v2 import SGD
+from tensorflow.python.keras.optimizers import gradient_descent_v2
+
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 ignore_words = ['?', '!']
 
@@ -23,6 +25,7 @@ class ChatBot:
         self.lemmatizer = WordNetLemmatizer()
         data_file = open("intents.json").read()
         self.intents = json.loads(data_file)
+        self.data_preprocessing()
 
     def clean_up_sentence(self, sentence):
         sentence_words = nltk.word_tokenize(sentence)
@@ -50,6 +53,7 @@ class ChatBot:
 
         # sort classes
         self.classes = sorted(list(set(self.classes)))
+        self.create_training_data()
 
     def create_training_data(self):
         # create our training data
@@ -98,7 +102,7 @@ class ChatBot:
 
         # Compile model. Stochastic gradient descent with Nesterov accelerated gradient gives good results for this
         # model
-        sgd = SGD(learning_rate=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        sgd = gradient_descent_v2.SGD(learning_rate=0.01, decay=1e-6, momentum=0.9, nesterov=True)
         self.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
         # fitting and saving the model
@@ -119,7 +123,7 @@ class ChatBot:
     def predict_class(self, sentence, model):
         p = self.bow(sentence)
         res = model.predict(np.array([p]))[0]
-        error = 0.25
+        error = 0.75
         results = [[i, r] for i, r in enumerate(res) if r > error]
         results.sort(key=lambda x: x[1], reverse=True)
         return_list = []
