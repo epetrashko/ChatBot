@@ -20,8 +20,8 @@ class ChatBot:
     def __init__(self):
         self.model = None
         self.words = []
-        self.classes = []
-        self.documents = []
+        self.labels = []
+        self.pattern_to_tag = []
         self.lemmatizer = WordNetLemmatizer()
         data_file = open("intents.json").read()
         self.intents = json.loads(data_file)
@@ -41,18 +41,19 @@ class ChatBot:
                 self.words.extend(w)
 
                 # add documents in the corpus
-                self.documents.append((w, intent['tag']))
+                self.pattern_to_tag.append((w, intent['tag']))
 
                 # add to our classes list
-                if intent['tag'] not in self.classes:
-                    self.classes.append(intent['tag'])
+                if intent['tag'] not in self.labels:
+                    self.labels.append(intent['tag'])
 
         # lemmatize, lower each word and remove duplicates
         self.words = [self.lemmatizer.lemmatize(w.lower()) for w in self.words if w not in ignore_words]
         self.words = sorted(list(set(self.words)))
 
         # sort classes
-        self.classes = sorted(list(set(self.classes)))
+        self.labels = sorted(list(set(self.labels)))
+
         self.create_training_data()
 
     def create_training_data(self):
@@ -60,45 +61,46 @@ class ChatBot:
         training = []
 
         # create an empty array for our output
-        output_empty = [0] * len(self.classes)
+        # output_empty = [0] * len(self.labels)
 
         # training set, bag of words for each sentence
-        for doc in self.documents:
+        for pattern, tag in self.pattern_to_tag:
             # initialize our bag of words
             bag = []
             # list of tokenized words for the pattern
-            pattern_words = doc[0]
+            pattern_words = pattern
 
             # lemmatize each word - create base word, in attempt to represent related words
             pattern_words = [self.lemmatizer.lemmatize(word.lower()) for word in pattern_words]
 
             # create our bag of words array with 1, if word match found in current pattern
-            for w in self.words:
-                bag.append(1) if w in pattern_words else bag.append(0)
+            for word in self.words:
+                bag.append(1) if word in pattern_words else bag.append(0)
             # output is a '0' for each tag and '1' for current tag (for each pattern)
-            output_row = list(output_empty)
-            output_row[self.classes.index(doc[1])] = 1
-            training.append([bag, output_row])
+            # output_row = list(output_empty)
+            output = [0] * len(self.labels)
+            output[self.labels.index(tag)] = 1
+            training.append([bag, output])
 
         # shuffle features and converting it into numpy arrays
         random.shuffle(training)
         training = np.array(training)
 
         # create train and test lists
-        train_x = list(training[:, 0])
-        train_y = list(training[:, 1])
+        x_train = list(training[:, 0])
+        y_train = list(training[:, 1])
 
         print("Training data created")
-        self.create_model(train_x, train_y)
+        self.create_model(x_train, y_train)
 
-    def create_model(self, train_x, train_y):
+    def create_model(self, x_train, y_train):
         # Create NN model to predict the responses
         self.model = Sequential()
-        self.model.add(Dense(128, input_shape=(len(train_x[0]),), activation='relu'))
+        self.model.add(Dense(128, input_shape=(len(x_train[0]),), activation='relu'))
         self.model.add(Dropout(0.5))
         self.model.add(Dense(64, activation='relu'))
         self.model.add(Dropout(0.5))
-        self.model.add(Dense(len(train_y[0]), activation='softmax'))
+        self.model.add(Dense(len(y_train[0]), activation='softmax'))
 
         # Compile model. Stochastic gradient descent with Nesterov accelerated gradient gives good results for this
         # model
@@ -106,11 +108,8 @@ class ChatBot:
         self.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
         # fitting and saving the model
-        hist = self.model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=1)
-        # self.model.save('chatbot.h5', hist)  # we will pickle this model to use in the future
-        print("\n")
-        print("*" * 50)
-        print("\nModel Created Successfully!")
+        self.model.fit(np.array(x_train), np.array(y_train), epochs=200, batch_size=5, verbose=1)
+        print("Model Created Successfully!")
 
     def bow(self, sentence):
         bag = [0] * len(self.words)
