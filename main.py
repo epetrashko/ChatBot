@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -11,7 +12,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-chat_bot = ChatBot()
+chat_bot = ChatBot(intents=json.loads(open("intents.json").read()), error_threshold=0.75)
 
 
 def start(update, _):

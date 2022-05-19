@@ -1,6 +1,5 @@
 import os
 import random
-import json
 import nltk
 from nltk.stem import WordNetLemmatizer
 import numpy as np
@@ -15,14 +14,14 @@ ignore_words = ['?', '!']
 
 class ChatBot:
 
-    def __init__(self, error_threshold=0.75, rewrite=False):
+    def __init__(self, intents: dict, error_threshold=0.75, rewrite=False):
         self.model = None
         self.__words = []
         self.__labels = []
         self.__pattern_to_tag = []
         self.__error_threshold = error_threshold
         self.__lemmatizer = WordNetLemmatizer()
-        self.__intents = json.loads(open("intents.json").read())
+        self.__intents = intents
         self.__data_preprocessing()
         self.__load_model(rewrite=rewrite)
 
