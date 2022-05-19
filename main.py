@@ -41,13 +41,13 @@ def main():
     dp.add_handler(CommandHandler("start", start))
 
     # Use it when you want to deploy bot on heroku
-    # updater.start_webhook(listen="0.0.0.0",
-    #                       port=int(PORT),
-    #                       url_path=TOKEN,
-    #                       webhook_url='https://brawler-chat-bot.herokuapp.com/' + TOKEN)
+    updater.start_webhook(listen="0.0.0.0",
+                          port=int(PORT),
+                          url_path=TOKEN,
+                          webhook_url='https://brawler-chat-bot.herokuapp.com/' + TOKEN)
 
     # Use it when you want to test on local machine
-    updater.start_polling()
+    # updater.start_polling()
 
     updater.idle()
 
