@@ -5,7 +5,6 @@
       "patterns": [
         "hi",
         "hello",
-        "whats up",
         "hey",
         "yo",
         "listen",
@@ -28,12 +27,9 @@
       "patterns": [
         "thank you",
         "thanks",
-        "have a good day",
         "you helped me",
         "thanks a lot",
-        "you are the best",
         "great help",
-        "too good",
         "you are a good learning buddy",
         "good job",
         "great job",
@@ -136,8 +132,7 @@
         "you are useless",
         "useless",
         "suggest",
-        "suggestions",
-        "you are bad"
+        "suggestions"
       ],
       "responses": [
         "Please mail your suggestions to @epetrashko or @Shabalin13."
@@ -703,10 +698,8 @@
       "tag": "bot_bad",
       "patterns": [
         "you're not helping me",
-        "you are bad",
         "you're very bad",
         "you're really bad",
-        "you are useless",
         "you are horrible",
         "you are a waste of time",
         "you are disgusting",
@@ -721,6 +714,7 @@
         "you are terrible",
         "you are totally useless",
         "you are very bad",
+        "you are bad",
         "you are waste",
         "you're a bad",
         "you're not a good",
