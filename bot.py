@@ -27,19 +27,17 @@ class ChatBot:
         self.error_threshold = error_threshold
         self.lemmatizer = WordNetLemmatizer()
         self.intents = json.loads(open("intents.json").read())
-        self.data_preprocessing()
+        self.__data_preprocessing()
         self.__load_model()
 
     def __load_model(self, rewrite=False):
         if rewrite or not os.path.exists("model.h5"):
-            self.create_training_data()
+            self.__create_training_data()
         else:
             self.model = load_model('model.h5')
-            print("\n")
-            print("*" * 50)
             print("\nLoading model")
 
-    def data_preprocessing(self):
+    def __data_preprocessing(self):
         for intent in self.intents['intents']:
             for pattern in intent['patterns']:
 
@@ -63,7 +61,7 @@ class ChatBot:
 
         self.create_training_data()
 
-    def create_training_data(self):
+    def __create_training_data(self):
         # create our training data
         training = []
 
@@ -98,9 +96,9 @@ class ChatBot:
         y_train = list(training[:, 1])
 
         print("Training data created")
-        self.create_model(x_train, y_train)
+        self.__create_model(x_train, y_train)
 
-    def create_model(self, x_train, y_train):
+    def __create_model(self, x_train, y_train):
         # Create NN model to predict the responses
         self.model = Sequential()
         self.model.add(Dense(128, input_shape=(len(x_train[0]),), activation='relu'))
@@ -132,18 +130,18 @@ class ChatBot:
                     bag[i] = 1
         return np.array(bag)
 
-    def __predict_class(self, sentence):
+    def __predict_tag(self, sentence):
         p = self.__bow(sentence)
         res = self.model.predict(np.array([p]))[0]
         results = [[i, r] for i, r in enumerate(res) if r > self.error_threshold]
         results.sort(key=lambda x: x[1], reverse=True)
         return_list = []
         for r in results:
-            return_list.append({"intent": self.classes[r[0]], "probability": str(r[1])})
+            return_list.append({"intent": self.labels[r[0]], "probability": str(r[1])})
         return return_list
 
     def get_response(self, text):
-        tag = self.__predict_class(text)[0]['intent']
+        tag = self.__predict_tag(text)[0]['intent']
         result = None
         for i in self.intents['intents']:
             if i['tag'] == tag:
