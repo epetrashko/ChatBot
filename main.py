@@ -18,8 +18,12 @@ def start(update, _):
     update.message.reply_text('Hi! Write some message')
 
 
-def echo(update, _):
-    update.message.reply_text(chat_bot.get_response(update.message.text))
+def respond(update, _):
+    text = chat_bot.get_response(update.message.text)
+    if text is not None:
+        update.message.reply_text(text)
+    else:
+        update.message.reply_text("Didn't get your question")
 
 
 def error(update, context):
@@ -33,7 +37,7 @@ def main():
 
     dp.add_error_handler(error)
 
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, respond))
     dp.add_handler(CommandHandler("start", start))
 
     # Use it when you want to deploy bot on heroku

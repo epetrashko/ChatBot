@@ -1,3 +1,4 @@
+import os
 import random
 import json
 import nltk
@@ -5,8 +6,9 @@ from nltk.stem import WordNetLemmatizer
 import numpy as np
 
 from tensorflow.python.keras import Sequential
-from tensorflow.python.keras.layers import Dense, Activation, Dropout
+from tensorflow.python.keras.layers import Dense, Dropout
 from tensorflow.python.keras.optimizers import gradient_descent_v2
+from tensorflow.python.keras.models import load_model
 
 nltk.download('punkt')
 nltk.download('wordnet')
@@ -17,20 +19,25 @@ ignore_words = ['?', '!']
 
 class ChatBot:
 
-    def __init__(self):
+    def __init__(self, error_threshold=0.75):
         self.model = None
         self.words = []
         self.labels = []
         self.pattern_to_tag = []
+        self.error_threshold = error_threshold
         self.lemmatizer = WordNetLemmatizer()
-        data_file = open("intents.json").read()
-        self.intents = json.loads(data_file)
+        self.intents = json.loads(open("intents.json").read())
         self.data_preprocessing()
+        self.__load_model()
 
-    def clean_up_sentence(self, sentence):
-        sentence_words = nltk.word_tokenize(sentence)
-        sentence_words = [self.lemmatizer.lemmatize(word.lower()) for word in sentence_words]
-        return sentence_words
+    def __load_model(self, rewrite=False):
+        if rewrite or not os.path.exists("model.h5"):
+            self.create_training_data()
+        else:
+            self.model = load_model('model.h5')
+            print("\n")
+            print("*" * 50)
+            print("\nLoading model")
 
     def data_preprocessing(self):
         for intent in self.intents['intents']:
@@ -108,22 +115,27 @@ class ChatBot:
         self.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
         # fitting and saving the model
-        self.model.fit(np.array(x_train), np.array(y_train), epochs=200, batch_size=5, verbose=1)
-        print("Model Created Successfully!")
+        hist = self.model.fit(np.array(x_train), np.array(y_train), epochs=200, batch_size=5, verbose=1)
+        self.model.save('model.h5', hist)
+        print("\nModel Created Successfully!")
 
-    def bow(self, sentence):
+    def __clean_up_sentence(self, sentence):
+        sentence_words = nltk.word_tokenize(sentence)
+        sentence_words = [self.lemmatizer.lemmatize(word.lower()) for word in sentence_words]
+        return sentence_words
+
+    def __bow(self, sentence):
         bag = [0] * len(self.words)
-        for s in self.clean_up_sentence(sentence):
+        for s in self.__clean_up_sentence(sentence):
             for i, w in enumerate(self.words):
                 if w == s:
                     bag[i] = 1
         return np.array(bag)
 
-    def predict_class(self, sentence, model):
-        p = self.bow(sentence)
-        res = model.predict(np.array([p]))[0]
-        error = 0.75
-        results = [[i, r] for i, r in enumerate(res) if r > error]
+    def __predict_class(self, sentence):
+        p = self.__bow(sentence)
+        res = self.model.predict(np.array([p]))[0]
+        results = [[i, r] for i, r in enumerate(res) if r > self.error_threshold]
         results.sort(key=lambda x: x[1], reverse=True)
         return_list = []
         for r in results:
@@ -131,13 +143,10 @@ class ChatBot:
         return return_list
 
     def get_response(self, text):
-        tag = self.predict_class(text, self.model)[0]['intent']
+        tag = self.__predict_class(text)[0]['intent']
         result = None
         for i in self.intents['intents']:
             if i['tag'] == tag:
                 result = random.choice(i['responses'])
                 break
-        if result is not None:
-            return result
-        else:
-            return "Didn't get your question"
+        return result
