@@ -13,7 +13,6 @@ from tensorflow.python.keras.models import load_model
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
-
 ignore_words = ['?', '!']
 
 
@@ -42,31 +41,28 @@ class ChatBot:
             for pattern in intent['patterns']:
 
                 # tokenize each word
-                w = nltk.word_tokenize(pattern)
-                self.words.extend(w)
+                words = nltk.word_tokenize(pattern)
+                self.words.extend(words)
 
                 # add documents in the corpus
-                self.pattern_to_tag.append((w, intent['tag']))
+                self.pattern_to_tag.append((words, intent['tag']))
 
                 # add to our classes list
                 if intent['tag'] not in self.labels:
                     self.labels.append(intent['tag'])
 
-        # lemmatize, lower each word and remove duplicates
+        # lemmatize, lower each word and remove duplicates and
         self.words = [self.lemmatizer.lemmatize(w.lower()) for w in self.words if w not in ignore_words]
         self.words = sorted(list(set(self.words)))
 
-        # sort classes
+        # sort labels
         self.labels = sorted(list(set(self.labels)))
 
-        self.create_training_data()
+        self.__create_training_data()
 
     def __create_training_data(self):
         # create our training data
         training = []
-
-        # create an empty array for our output
-        # output_empty = [0] * len(self.labels)
 
         # training set, bag of words for each sentence
         for pattern, tag in self.pattern_to_tag:
@@ -82,7 +78,6 @@ class ChatBot:
             for word in self.words:
                 bag.append(1) if word in pattern_words else bag.append(0)
             # output is a '0' for each tag and '1' for current tag (for each pattern)
-            # output_row = list(output_empty)
             output = [0] * len(self.labels)
             output[self.labels.index(tag)] = 1
             training.append([bag, output])
