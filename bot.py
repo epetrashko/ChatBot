@@ -10,9 +10,6 @@ from tensorflow.python.keras.layers import Dense, Dropout
 from tensorflow.python.keras.optimizers import gradient_descent_v2
 from tensorflow.python.keras.models import load_model
 
-nltk.download('punkt')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
 ignore_words = ['?', '!']
 
 
