@@ -1,3 +1,4 @@
+import os
 import random
 import json
 import nltk
@@ -7,6 +8,7 @@ import numpy as np
 from tensorflow.python.keras import Sequential
 from tensorflow.python.keras.layers import Dense, Activation, Dropout
 from tensorflow.python.keras.optimizers import gradient_descent_v2
+from tensorflow.python.keras.models import load_model
 
 nltk.download('punkt')
 nltk.download('wordnet')
@@ -26,11 +28,21 @@ class ChatBot:
         data_file = open("intents.json").read()
         self.intents = json.loads(data_file)
         self.data_preprocessing()
+        self.__load_model()
 
     def clean_up_sentence(self, sentence):
         sentence_words = nltk.word_tokenize(sentence)
         sentence_words = [self.lemmatizer.lemmatize(word.lower()) for word in sentence_words]
         return sentence_words
+
+    def __load_model(self, rewrite=False):
+        if rewrite or not os.path.exists("model.h5"):
+            self.create_training_data()
+        else:
+            self.model = load_model('model.h5')
+            print("\n")
+            print("*" * 50)
+            print("\nLoading model")
 
     def data_preprocessing(self):
         for intent in self.intents['intents']:
@@ -53,7 +65,6 @@ class ChatBot:
 
         # sort classes
         self.classes = sorted(list(set(self.classes)))
-        self.create_training_data()
 
     def create_training_data(self):
         # create our training data
@@ -107,7 +118,7 @@ class ChatBot:
 
         # fitting and saving the model
         hist = self.model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=1)
-        # self.model.save('chatbot.h5', hist)  # we will pickle this model to use in the future
+        self.model.save('model.h5', hist)  # we will pickle this model to use in the future
         print("\n")
         print("*" * 50)
         print("\nModel Created Successfully!")
