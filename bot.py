@@ -131,10 +131,10 @@ class ChatBot:
         return return_list
 
     def get_response(self, text):
-        tag = self.__predict_tag(text)[0]['intent']
-        result = None
+        tags = self.__predict_tag(text)
+        if len(tags) == 0:
+            return None
+        tag = tags[0]['intent']
         for i in self.__intents['intents']:
             if i['tag'] == tag:
-                result = random.choice(i['responses'])
-                break
-        return result
+                return random.choice(i['responses'])
